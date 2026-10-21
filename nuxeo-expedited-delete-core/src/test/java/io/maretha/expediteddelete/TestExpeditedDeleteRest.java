@@ -23,8 +23,8 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.MediaType;
+import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,7 +33,6 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.bulk.BulkService;
 import org.nuxeo.ecm.core.bulk.message.BulkStatus;
-import org.nuxeo.ecm.core.search.BaseCoreSearchFeature;
 import org.nuxeo.ecm.platform.usermanager.UserManager;
 import org.nuxeo.ecm.restapi.test.RestServerFeature;
 import org.nuxeo.http.test.HttpClientTestRule;
@@ -52,8 +51,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * docs/curl.md calls on an embedded REST API (paths relative to /api/v1/).
  */
 @RunWith(FeaturesRunner.class)
-// BaseCoreSearchFeature: Search Service + "repository" index, for scroll=search
-@Features({ RestServerFeature.class, BaseCoreSearchFeature.class })
+@Features(RestServerFeature.class)
 @Deploy("org.nuxeo.ecm.platform.search.core")
 @Deploy("org.nuxeo.ecm.platform.restapi.server.search")
 @Deploy("io.maretha.expediteddelete.core")
@@ -162,8 +160,9 @@ public class TestExpeditedDeleteRest {
 
     @Test
     public void testLaunchWithOtherScrollers() throws Exception {
-        // Nuxeo's "search" scroller, then the custom scroller example of expedited-delete-bulk-contrib.xml
-        for (String scroller : List.of("search", "expeditedDeleteSearch")) {
+        // the custom scroller example of expedited-delete-bulk-contrib.xml
+        // ("elastic": TestExpeditedDeleteElasticScroller)
+        for (String scroller : List.of("expeditedDeleteRepository")) {
             DocumentModel folder = createFolderWithFiles(2);
             txFeature.nextTransaction();
 

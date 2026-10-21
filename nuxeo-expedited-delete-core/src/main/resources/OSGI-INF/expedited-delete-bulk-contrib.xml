@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
   Expedited Delete: <action> registers the bulk action, <streamProcessor> runs it.
-  Every LTS 2025 option is below: set, or in a commented example.
+  Every LTS 2023 option is below: set, or in a commented example.
   ${key:=default}: override with key=value in nuxeo.conf.
 -->
 <component name="io.maretha.expediteddelete.bulk" version="1.0.0">
@@ -45,14 +45,11 @@
 
   <!--
     Scrollers: run the query as the launcher, write ids to the stream.
-    LTS 2025 NXQL scrollers:
-      repository         database (used here)
-      search             Search Service; index from nuxeo.search.client.default.scroller.index.name [repository]
-      repository_search  Search Service, "repository" index
-      elastic            OpenSearch 1 "enhanced" index; deprecated; needs the OpenSearch 1 client package
-    Search scrollers need their index; a missing one stops the shared scroller until restart.
-    Other types (generic, queryBuilder, static, empty): non-NXQL, Java only.
-    Pick one: defaultScroller="search", nuxeo.conf nuxeo.bulk.action.expeditedDelete.defaultScroller=search,
+    LTS 2023 NXQL scrollers:
+      repository  database (used here)
+      elastic     Elasticsearch/OpenSearch index (nuxeo-elasticsearch)
+    Other types (generic, static, empty): non-NXQL, Java only.
+    Pick one: defaultScroller="elastic", nuxeo.conf nuxeo.bulk.action.expeditedDelete.defaultScroller=elastic,
     or per run with the REST "scroll" parameter.
     Shared nuxeo.conf settings [default]:
       nuxeo.core.bulk.scroller.scroll.keepAliveSeconds  [300]    cursor keep-alive
@@ -60,18 +57,18 @@
       nuxeo.core.bulk.scroller.continueOnFailure        [false]  true = skip a failed scroll
   -->
   <!--
-    Example: your own scroller. Use it with defaultScroller="expeditedDeleteSearch".
+    Example: your own scroller. Use it with defaultScroller="expeditedDeleteRepository".
       type     document = NXQL
       name     id for defaultScroller / "scroll"
       class    implements org.nuxeo.ecm.core.api.scroll.Scroll
       default  true = used when none is named
       enabled  on/off
-      option   settings for the class
+      option   settings for the class (LTS 2023 NXQL scrollers read none)
 
   <extension target="org.nuxeo.ecm.core.scroll.service" point="scroll">
-    <scroll type="document" name="expeditedDeleteSearch" class="org.nuxeo.ecm.core.search.SearchServiceScroll"
+    <scroll type="document" name="expeditedDeleteRepository" class="org.nuxeo.ecm.core.scroll.RepositoryScroll"
       default="false" enabled="true">
-      <option name="searchIndex">repository</option>
+      <option name="myOption">value</option>
     </scroll>
   </extension>
   -->
@@ -87,7 +84,7 @@
     defaultPartitions   max threads cluster-wide; fixed at stream creation
     defaultCodec        avro (default), avroBinary, avroJson, java, legacy
     defaultExternal     true = streams created elsewhere
-    logConfig           ignored in LTS 2025
+    logConfig           ignored in LTS 2023
   -->
   <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
     <streamProcessor name="expeditedDelete"

@@ -71,7 +71,7 @@ public class ExpeditedDeleteAction implements StreamProcessorTopology {
                 super.processBatchOfDocuments(batch);
             } catch (NuxeoException e) {
                 if (batch.size() == 1) {
-                    refused(batch.getFirst(), e);
+                    refused(batch.get(0), e);
                     return;
                 }
                 log.debug("Command: {} batch refused ({}), deleting one by one", command.getId(), e.getMessage());

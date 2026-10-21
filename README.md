@@ -1,6 +1,6 @@
 # Nuxeo Expedited Delete
 
-A Nuxeo LTS 2025 add-on that permanently deletes every document matching an NXQL query, as fast as the platform
+A Nuxeo LTS 2023 add-on that permanently deletes every document matching an NXQL query, as fast as the platform
 allows, and a worked example of **how to create and configure a Nuxeo bulk action**.
 
 - Same result as `Document.Delete` (`CoreSession.removeDocument`): permanent, no trash.
@@ -10,7 +10,7 @@ allows, and a worked example of **how to create and configure a Nuxeo bulk actio
   behind other bulk jobs and its progress and lag can be tracked on their own.
 - Launched by administrators with the `Bulk.ExpeditedDelete` Automation operation.
 
-Branch `2025` targets LTS 2025. LTS 2027 TBD & will live on its own branch.
+Branch `2023` (this one) targets LTS 2023. Branch `2025` targets LTS 2025. LTS 2027 TBD & will live on its own branch.
 
 ## Why it is faster than `Bulk.RunAction` + `Document.Delete`
 
@@ -21,13 +21,13 @@ Branch `2025` targets LTS 2025. LTS 2027 TBD & will live on its own branch.
 | Stream | `bulk/automation`, shared with every other Automation bulk job | `bulk/expeditedDelete`, its own |
 | Threads per node / partitions | 2 / 4 | 4 / 8, configurable |
 
-The values for the `automation` action are Nuxeo's LTS 2025 defaults (`bulk-contrib.xml` in
+The values for the `automation` action are Nuxeo's LTS 2023 defaults (`bulk-contrib.xml` in
 `nuxeo-automation-features`). No benchmark ships with this repository: measure with your own data and tune the
 settings below.
 
 ## Install
 
-Build with Java 21 and Maven, with access to the Nuxeo LTS 2025 Maven artifacts:
+Build with Java 17 and Maven, with access to the Nuxeo LTS 2023 Maven artifacts:
 
 ```bash
 mvn clean verify
@@ -96,7 +96,7 @@ Five files make the add-on. Each setting in them carries a short comment.
 
 | File | Role |
 |---|---|
-| [`OSGI-INF/expedited-delete-bulk-contrib.xml`](nuxeo-expedited-delete-core/src/main/resources/OSGI-INF/expedited-delete-bulk-contrib.xml) | Registers the **action** with the Bulk Service and the **stream processor** that does the work. Lists every option Nuxeo LTS 2025 accepts for both, the scrollers, and how to register your own scroller. |
+| [`OSGI-INF/expedited-delete-bulk-contrib.xml`](nuxeo-expedited-delete-core/src/main/resources/OSGI-INF/expedited-delete-bulk-contrib.xml) | Registers the **action** with the Bulk Service and the **stream processor** that does the work. Lists every option Nuxeo LTS 2023 accepts for both, the scrollers, and how to register your own scroller. |
 | [`ExpeditedDeleteAction.java`](nuxeo-expedited-delete-core/src/main/java/io/maretha/expediteddelete/ExpeditedDeleteAction.java) | The **topology** (which stream it reads and writes) and the **computation** (what happens to each batch of ids). |
 | [`ExpeditedDeleteValidation.java`](nuxeo-expedited-delete-core/src/main/java/io/maretha/expediteddelete/ExpeditedDeleteValidation.java) | The **validation class**: Nuxeo runs it on every launch, from any route, before accepting the command. |
 | [`ExpeditedDeleteOperation.java`](nuxeo-expedited-delete-core/src/main/java/io/maretha/expediteddelete/ExpeditedDeleteOperation.java) | The **launcher**: checks the caller, builds a `BulkCommand` and submits it. |
@@ -116,7 +116,7 @@ What happens on a run:
 To write your own action, copy the pattern: change the action name and stream in the XML and the constants in the
 action class, put your logic in `compute()`, and keep `name` identical in `<action>` and `<streamProcessor>`. The
 options come from `BulkActionDescriptor` (`nuxeo-core-bulk`), `StreamProcessorDescriptor` (`nuxeo-runtime-stream`)
-and `ScrollDescriptor` (`nuxeo-core-bulk`) in the LTS 2025 source.
+and `ScrollDescriptor` (`nuxeo-core-bulk`) in the LTS 2023 source.
 
 ## Behaviour and security notes
 
@@ -140,15 +140,15 @@ and `ScrollDescriptor` (`nuxeo-core-bulk`) in the LTS 2025 source.
 
 ## Validation
 
-- 20 tests pass on Nuxeo 2025.26.16 artifacts with an H2 (VCS) repository and with an in-memory DBS repository
+- 20 tests pass on Nuxeo 2023.54.20 artifacts, run on Java 17, with an H2 (VCS) repository and with an in-memory DBS repository
   (`-Dnuxeo.test.core=mem -Dnuxeo.test.directory=sql`), both with in-memory streams.
 - `TestExpeditedDelete` (8) covers: every setting registered, on its own stream; a 230-document delete across
   several buckets and batches; a folder and its children in one query; a document under legal hold skipped while
   the rest are deleted; deletion as system for a launcher who can only read; the validation class on a direct
   submit; the operation's administrator and `WHERE` checks.
 - `TestExpeditedDeleteRest` (11) runs the HTTP calls of [docs/curl.md](docs/curl.md) against an embedded REST API,
-  with the `repository`, `search` and custom scrollers; `TestExpeditedDeleteElasticScroller` (1) runs
-  `scroll=elastic` against an embedded OpenSearch 1 node. docs/curl.md lists what is covered and what is not.
+  with the `repository` and custom scrollers; `TestExpeditedDeleteElasticScroller` (1) runs `scroll=elastic`
+  against Nuxeo's embedded Elasticsearch-compatible test server. docs/curl.md lists what is covered and what is not.
 - Not yet run against MongoDB, Kafka, a running Nuxeo server or a cluster. No performance benchmark.
 
 ## License

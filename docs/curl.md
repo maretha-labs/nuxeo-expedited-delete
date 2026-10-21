@@ -1,6 +1,6 @@
 # Calling a bulk action with curl
 
-How to launch, follow and stop any Nuxeo LTS 2025 bulk action over HTTP, with every option the REST API accepts.
+How to launch, follow and stop any Nuxeo LTS 2023 bulk action over HTTP, with every option the REST API accepts.
 The examples use `expeditedDelete`; put any other action name in its place.
 
 ## Before you start
@@ -17,7 +17,7 @@ The examples use `expeditedDelete`; put any other action name in its place.
 
 ## 1. Launch a run
 
-Three routes. Each is a `POST` that answers `202 Accepted` with the run's status (see [Status](#status)). Keep its
+Four routes (d is deprecated). Each is a `POST` that answers `202 Accepted` with the run's status (see [Status](#status)). Keep its
 `commandId`.
 
 The body is optional: a JSON object of action parameters, for example `{"dc:description": "archived"}` for Nuxeo's
@@ -40,7 +40,7 @@ curl -u Administrator -X POST -H 'Content-Type: application/json' \
   --url-query "query=SELECT * FROM File WHERE ecm:parentId = ? AND dc:creator = :creator" \
   --url-query "queryParams=5f2b0a4c-0000-0000-0000-000000000000" \
   --url-query "creator=jdoe" \
-  --url-query "scroll=search" \
+  --url-query "scroll=repository" \
   --url-query "queryLimit=10000" \
   https://nuxeo.example.com/nuxeo/api/v1/search/bulk/expeditedDelete
 ```
@@ -59,7 +59,7 @@ The search endpoint's paging and sorting parameters (`pageSize`, `currentPageInd
 #### Scrollers
 
 ```bash
-# OpenSearch 1 "enhanced" index
+# Elasticsearch/OpenSearch index
 curl -u Administrator -X POST -H 'Content-Type: application/json' \
   --url-query "query=SELECT * FROM File WHERE dc:created < DATE '2015-01-01'" \
   --url-query "scroll=elastic" \
@@ -69,13 +69,10 @@ curl -u Administrator -X POST -H 'Content-Type: application/json' \
 | `scroll` | Reads from | Needs |
 |---|---|---|
 | `repository` | the database | nothing (this action's default) |
-| `search` | the Search Service, index `nuxeo.search.client.default.scroller.index.name` (`repository` unless set) | that index; the server template declares `repository` |
-| `repository_search` | the Search Service, `repository` index | that index |
-| `elastic` | the OpenSearch 1 `enhanced` index | the OpenSearch 1 search client package; deprecated since 2025.0. The OpenSearch 2 client package (2025.4.9 checked) adds no scroller. |
+| `elastic` | the repository's Elasticsearch/OpenSearch index | `nuxeo-elasticsearch` configured for the repository |
+| your own | what its class reads | a `<scroll>` contribution (example in `expedited-delete-bulk-contrib.xml`) |
 
-Index-based scrollers only find documents already indexed. If the named search index does not exist, the error
-stops Nuxeo's shared bulk scroller on that node until restart, so every later bulk run waits (seen in tests;
-`nuxeo.core.bulk.scroller.continueOnFailure=true` is the setting meant to skip such a failure, not tested).
+Index-based scrollers only find documents already indexed.
 
 ### b. From a page provider
 
@@ -95,7 +92,7 @@ curl -u Administrator -X POST -H 'Content-Type: application/json' \
 | `queryParams` | Fills the `?` marks of the page provider's pattern, in order. Repeat it for several. |
 | any other name | A named parameter of the page provider: fills `:name` in its pattern or the field of its where clause. `$currentUser` and `$currentRepository` are replaced as above. |
 | `quickFilters` | Names of the page provider's quick filters to add, comma-separated. |
-| `scroll` | The scroller for this run. **Default: the page provider's own scroller, which wins over the action's `defaultScroller`**: `repository` for NXQL page providers, `search` (or the one it names) for Search Service page providers. |
+| `scroll` | The scroller for this run. **Default: from the page provider's type, which wins over the action's `defaultScroller`**: `elastic` for Elasticsearch page providers, otherwise `default`, meaning Nuxeo's default document scroller (`repository` unless another is flagged `default="true"`). |
 | `queryLimit` | The most documents this run may touch. Default: the action's `defaultQueryLimit`. |
 
 `query` is ignored on this route.
@@ -113,12 +110,19 @@ The query comes from the saved search's page provider, filled with this request'
 `scroll` and `queryLimit` are not read: the action's defaults apply. A saved search with no page provider takes
 route a's `query` parameter instead, and so falls back to `SELECT * FROM Document` without it.
 
+### d. From an NXQL query, old route (deprecated since Nuxeo 10.3)
+
+`POST /api/v1/search/lang/NXQL/bulk/{action}`
+
+Same parameters as route a, except `scroll` and `queryLimit`, which it does not read. `NXQL` is the only language.
+Use route a.
+
 ### Launch answers
 
 | HTTP status | When |
 |---|---|
 | `202` | Accepted. The body is the run's status. |
-| `400` | Unknown action (empty body), or the command was refused: for `expeditedDelete`, no `WHERE` clause, a body parameter, or an unknown `scroll` name. |
+| `400` | Unknown action (empty body), or the command was refused: for `expeditedDelete`, no `WHERE` clause, a body parameter, or an unknown `scroll` name. Route d: a language other than `NXQL`. |
 | `403` | The action is `httpEnabled="false"` and the caller is not an administrator (empty body). |
 | `404` | Route c: no saved search with that id. |
 
@@ -136,8 +140,8 @@ curl -u Administrator -X PUT https://nuxeo.example.com/nuxeo/api/v1/bulk/<comman
 | `GET /api/v1/bulk/{commandId}` | The user who launched the run, or an administrator. Others get `404`. | Returns the status. |
 | `PUT /api/v1/bulk/{commandId}/abort` | Same | Stops the run and returns its status. A finished run is returned unchanged. |
 | `GET /api/v1/management/bulk/{commandId}` | Management API users (below) | Returns the status. `404` if unknown. |
-| `DELETE /api/v1/management/bulk/{commandId}` | Management API users | Stops the run and returns its status. `400` if it already completed. |
-| `PUT /api/v1/management/bulk/idle?totalDocs=<n>&millisDurationPerDoc=<ms>` | Management API users | Launches Nuxeo's test action `idle` to size a cluster. Needs `nuxeo.bulk.action.idle.enabled=true`. Not related to this add-on. |
+| `DELETE /api/v1/management/bulk/{commandId}` | Management API users | Stops the run and returns its status. `400` if it already completed. LTS 2023.29 and later. |
+| `PUT /api/v1/management/bulk/idle?totalDocs=<n>&millisDurationPerDoc=<ms>` | Management API users | Launches Nuxeo's test action `idle` to size a cluster. Needs `nuxeo.bulk.action.idle.enabled=true`. LTS 2023.29 and later. Not related to this add-on. |
 
 Stopping a run: the documents already processed stay processed (for `expeditedDelete`, deleted); the buckets still
 waiting in the stream are skipped.
@@ -166,18 +170,19 @@ in `nuxeo.management.api.groups`. The management API answers only on the port `n
 | Call | Notes |
 |---|---|
 | `POST /api/v1/automation/Bulk.ExpeditedDelete`, body `{"params": {"query": "..."}}` | This add-on's launcher, administrators only. Answers `200` with `{"entity-type": "bulkStatus", "value": {...status...}}`: the `commandId` is in `value`. |
-| `POST /api/v1/automation/Bulk.RunAction` | Nuxeo's generic launcher. Params: `action` (required), `query` or `providerName`, `queryParams`, `namedParameters`, `quickFilters`, `repositoryName`, `bucketSize`, `batchSize`, `parameters` (action parameters as a JSON string), `excludeDocs` (ids to leave out), `queryLimit`. The only HTTP route that sets `bucketSize` and `batchSize` for one run. It passes the page provider's scroller, which wins over the action's `defaultScroller` when the provider has one. |
+| `POST /api/v1/automation/Bulk.RunAction` | Nuxeo's generic launcher. Params: `action` (required), `query` or `providerName`, `queryParams`, `namedParameters`, `quickFilters`, `repositoryName`, `bucketSize`, `batchSize`, `parameters` (action parameters as a JSON string), `excludeDocs` (ids to leave out), `queryLimit`. The only HTTP route that sets `bucketSize` and `batchSize` for one run. It passes the page provider's type as the scroller (`default` or `elastic`, as in route b), which wins over the action's `defaultScroller`. |
 | `POST /api/v1/automation/Bulk.WaitForAction`, params `commandId`, `timeoutSecond` | Waits for the run to end. |
 | `/api/v1/user/search/bulk/{action}`, `/api/v1/group/search/bulk/{action}`, and the `bulk` route of the group adapters `@users` and `@groups` | These send user or group ids to the action, not document ids. Not for `expeditedDelete`. |
 
 ## What was checked
 
-`TestExpeditedDeleteRest` runs these calls against an embedded Nuxeo 2025.26.16 REST API: route a with `query`,
-`queryParams`, a named parameter, `scroll` (`repository`, `search`, and the custom scroller example of
+`TestExpeditedDeleteRest` runs these calls against an embedded Nuxeo 2023.54.20 REST API on Java 17: route a with
+`query`, `queryParams`, a named parameter, `scroll` (`repository` and the custom scroller example of
 `expedited-delete-bulk-contrib.xml`) and `queryLimit`; a request encoded exactly as `curl --url-query` sends it; the
 `202`, `400` and `403` answers listed above; `GET /bulk`, `PUT /bulk/.../abort`, `GET` and `DELETE /management/bulk`; and
-`Bulk.ExpeditedDelete`. `TestExpeditedDeleteElasticScroller` runs `scroll=elastic` against an embedded OpenSearch 1
-node.
+`Bulk.ExpeditedDelete`. `TestExpeditedDeleteElasticScroller` runs `scroll=elastic` against Nuxeo's embedded
+Elasticsearch-compatible test server.
 
-Described from the LTS 2025 source, not run: `scroll=repository_search`, routes b and c, the `idle` call,
-`Bulk.RunAction`, `Bulk.WaitForAction` over HTTP, the user and group routes and the `/repo/` prefix.
+Described from the LTS 2023 source, not run: routes b, c and d, the `idle` call, `Bulk.RunAction`,
+`Bulk.WaitForAction` over HTTP, the user and group routes and the `/repo/` prefix. The "2023.29 and later" notes
+come from the git tags of nuxeo-lts.

@@ -1,6 +1,6 @@
 name: build
 
-# manual only: needs Nuxeo LTS 2025 Maven artifacts
+# manual only: needs Nuxeo LTS 2023 Maven artifacts
 on:
   workflow_dispatch:
 
@@ -12,6 +12,6 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '17'
           cache: maven
       - run: mvn -B -nsu verify

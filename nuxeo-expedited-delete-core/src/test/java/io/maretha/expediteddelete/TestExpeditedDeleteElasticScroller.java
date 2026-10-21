@@ -11,8 +11,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.time.Duration;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.MediaType;
+import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,8 +21,8 @@ import org.nuxeo.ecm.core.api.CoreSession;
 import org.nuxeo.ecm.core.api.DocumentModel;
 import org.nuxeo.ecm.core.bulk.BulkService;
 import org.nuxeo.ecm.core.bulk.message.BulkStatus;
-import org.nuxeo.ecm.core.search.client.opensearch1.OpenSearchCoreSearchFeature;
 import org.nuxeo.ecm.restapi.test.RestServerFeature;
+import org.nuxeo.elasticsearch.test.RepositoryElasticSearchFeature;
 import org.nuxeo.http.test.HttpClientTestRule;
 import org.nuxeo.http.test.handler.JsonNodeHandler;
 import org.nuxeo.runtime.test.runner.Deploy;
@@ -33,10 +33,10 @@ import org.nuxeo.runtime.test.runner.TransactionalFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * REST "scroll=elastic": the deprecated OpenSearch 1 scroller, on an embedded OpenSearch.
+ * REST "scroll=elastic": the Elasticsearch/OpenSearch scroller, on an embedded server.
  */
 @RunWith(FeaturesRunner.class)
-@Features({ RestServerFeature.class, OpenSearchCoreSearchFeature.class })
+@Features({ RestServerFeature.class, RepositoryElasticSearchFeature.class })
 @Deploy("org.nuxeo.ecm.platform.search.core")
 @Deploy("org.nuxeo.ecm.platform.restapi.server.search")
 @Deploy("io.maretha.expediteddelete.core")

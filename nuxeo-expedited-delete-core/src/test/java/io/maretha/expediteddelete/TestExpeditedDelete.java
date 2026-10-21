@@ -16,7 +16,7 @@ import static org.nuxeo.ecm.core.bulk.message.BulkStatus.State.COMPLETED;
 import java.time.Duration;
 import java.util.Map;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

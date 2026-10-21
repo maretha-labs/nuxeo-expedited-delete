@@ -74,32 +74,15 @@
       <artifactId>nuxeo-search-rest-api</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- "elastic" scroller test: OpenSearch 1 client + embedded OpenSearch -->
+    <!-- "elastic" scroller test: Elasticsearch client + embedded server -->
     <dependency>
-      <groupId>org.nuxeo.ecm.core</groupId>
-      <artifactId>nuxeo-search-client-opensearch1</artifactId>
+      <groupId>org.nuxeo.elasticsearch</groupId>
+      <artifactId>nuxeo-elasticsearch-core</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.nuxeo.ecm.core</groupId>
-      <artifactId>nuxeo-search-client-opensearch1</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.nuxeo.runtime</groupId>
-      <artifactId>nuxeo-runtime-opensearch1</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.nuxeo.runtime</groupId>
-      <artifactId>nuxeo-runtime-opensearch1-embed</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.nuxeo.runtime</groupId>
-      <artifactId>nuxeo-runtime-opensearch1-embed</artifactId>
+      <groupId>org.nuxeo.elasticsearch</groupId>
+      <artifactId>nuxeo-elasticsearch-core</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

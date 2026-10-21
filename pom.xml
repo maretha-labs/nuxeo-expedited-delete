@@ -3,11 +3,11 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <!-- Nuxeo LTS 2025: manages all versions -->
+  <!-- Nuxeo LTS 2023: manages all versions -->
   <parent>
     <groupId>org.nuxeo</groupId>
     <artifactId>nuxeo-parent</artifactId>
-    <version>2025.26</version>
+    <version>2023.54</version>
   </parent>
 
   <groupId>io.maretha.expediteddelete</groupId>
@@ -22,9 +22,9 @@
     <!-- skip Nuxeo-internal build rules -->
     <nuxeo.skip.enforcer>true</nuxeo.skip.enforcer>
     <!-- target LTS -->
-    <nuxeo.target.version>2025.*</nuxeo.target.version>
-    <!-- Java 21 -->
-    <maven.compiler.release>21</maven.compiler.release>
+    <nuxeo.target.version>2023.*</nuxeo.target.version>
+    <!-- Java 17 -->
+    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <modules>
