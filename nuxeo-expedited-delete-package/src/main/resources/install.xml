@@ -1,0 +1,4 @@
+<install>
+  <!-- copy the jar to the bundles folder -->
+  <update file="${package.root}/install/bundles" todir="${env.bundles}" />
+</install>

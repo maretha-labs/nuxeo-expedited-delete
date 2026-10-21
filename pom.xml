@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <!-- Nuxeo LTS 2025: manages all versions -->
+  <parent>
+    <groupId>org.nuxeo</groupId>
+    <artifactId>nuxeo-parent</artifactId>
+    <version>2025.26</version>
+  </parent>
+
+  <groupId>io.maretha.expediteddelete</groupId>
+  <artifactId>nuxeo-expedited-delete-parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Nuxeo Expedited Delete</name>
+  <description>A Nuxeo bulk action that permanently deletes the documents matching an NXQL query, as the system user,
+    on its own stream.</description>
+
+  <properties>
+    <!-- skip Nuxeo-internal build rules -->
+    <nuxeo.skip.enforcer>true</nuxeo.skip.enforcer>
+    <!-- target LTS -->
+    <nuxeo.target.version>2025.*</nuxeo.target.version>
+    <!-- Java 21 -->
+    <maven.compiler.release>21</maven.compiler.release>
+  </properties>
+
+  <modules>
+    <module>nuxeo-expedited-delete-core</module>
+    <module>nuxeo-expedited-delete-package</module>
+  </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.maretha.expediteddelete</groupId>
+        <artifactId>nuxeo-expedited-delete-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- Nuxeo artifacts -->
+  <repositories>
+    <repository>
+      <id>maven-public</id>
+      <url>https://packages.nuxeo.com/repository/maven-public/</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>maven-public</id>
+      <url>https://packages.nuxeo.com/repository/maven-public/</url>
+    </pluginRepository>
+  </pluginRepositories>
+</project>

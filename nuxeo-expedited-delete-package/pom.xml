@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.maretha.expediteddelete</groupId>
+    <artifactId>nuxeo-expedited-delete-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <artifactId>nuxeo-expedited-delete-package</artifactId>
+  <!-- Marketplace zip, for nuxeoctl mp-install -->
+  <packaging>zip</packaging>
+  <name>Nuxeo Expedited Delete Marketplace Package</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.maretha.expediteddelete</groupId>
+      <artifactId>nuxeo-expedited-delete-core</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <!-- builds the zip from src/main/assemble/assembly.xml -->
+        <groupId>org.nuxeo.build</groupId>
+        <artifactId>ant-assembly-maven-plugin</artifactId>
+        <configuration>
+          <buildFiles>
+            <buildFile>${basedir}/src/main/assemble/assembly.xml</buildFile>
+          </buildFiles>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

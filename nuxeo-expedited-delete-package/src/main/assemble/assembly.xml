@@ -1,0 +1,38 @@
+<project name="nuxeo-expedited-delete-package" default="build" xmlns:artifact="urn:nuxeo-artifact">
+  <taskdef resource="org/nuxeo/build/artifact/antlib.xml" uri="urn:nuxeo-artifact" />
+
+  <target name="build">
+    <property name="outdir" value="${maven.project.build.directory}" />
+    <property name="package.dir" value="${outdir}/marketplace" />
+    <artifact:nuxeo-expand includeTestScope="false" groupPrefixes="io.maretha.expediteddelete" />
+
+    <!-- package.xml, install.xml, version filled in -->
+    <delete failonerror="false" dir="${package.dir}" />
+    <copy todir="${package.dir}">
+      <fileset dir="src/main/resources" />
+      <filterset>
+        <filter token="VERSION" value="${maven.project.version}" />
+      </filterset>
+    </copy>
+    <copy file="../LICENSE" tofile="${package.dir}/license.txt" />
+    <copy file="../NOTICE" tofile="${package.dir}/NOTICE.txt" />
+
+    <!-- add-on jar only; the rest ships with Nuxeo -->
+    <copy todir="${package.dir}/install/bundles">
+      <artifact:set>
+        <includes>
+          <artifact groupId="io.maretha.expediteddelete" />
+        </includes>
+        <excludes>
+          <artifact groupId="${maven.project.groupId}" artifactId="${maven.project.artifactId}" />
+          <artifact scope="test" />
+          <artifact scope="provided" />
+          <artifact type="pom" />
+        </excludes>
+      </artifact:set>
+    </copy>
+
+    <zip destfile="${outdir}/${maven.project.artifactId}-${maven.project.version}.zip" basedir="${package.dir}" />
+    <artifact:attach file="${outdir}/${maven.project.artifactId}-${maven.project.version}.zip" type="zip" />
+  </target>
+</project>

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!-- the scroller example of expedited-delete-bulk-contrib.xml, enabled for tests -->
+<component name="io.maretha.expediteddelete.test.scroller" version="1.0.0">
+  <extension target="org.nuxeo.ecm.core.scroll.service" point="scroll">
+    <scroll type="document" name="expeditedDeleteSearch" class="org.nuxeo.ecm.core.search.SearchServiceScroll"
+      default="false" enabled="true">
+      <option name="searchIndex">repository</option>
+    </scroll>
+  </extension>
+</component>

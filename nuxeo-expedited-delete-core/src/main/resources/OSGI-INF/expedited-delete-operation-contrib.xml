@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!-- registers operation Bulk.ExpeditedDelete -->
+<component name="io.maretha.expediteddelete.operation" version="1.0.0">
+
+  <require>org.nuxeo.ecm.core.automation.coreContrib</require>
+
+  <extension target="org.nuxeo.ecm.core.operation.OperationServiceComponent" point="operations">
+    <operation class="io.maretha.expediteddelete.ExpeditedDeleteOperation" />
+  </extension>
+
+</component>

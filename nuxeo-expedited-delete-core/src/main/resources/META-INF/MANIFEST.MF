@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Nuxeo Expedited Delete Core
+Bundle-SymbolicName: io.maretha.expediteddelete.core;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: Maretha
+Bundle-ActivationPolicy: lazy
+Nuxeo-Component: OSGI-INF/expedited-delete-bulk-contrib.xml,
+ OSGI-INF/expedited-delete-operation-contrib.xml

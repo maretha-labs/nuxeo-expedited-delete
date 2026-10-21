@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<!--
+  Expedited Delete: <action> registers the bulk action, <streamProcessor> runs it.
+  Every LTS 2025 option is below: set, or in a commented example.
+  ${key:=default}: override with key=value in nuxeo.conf.
+-->
+<component name="io.maretha.expediteddelete.bulk" version="1.0.0">
+
+  <!-- load after Nuxeo's bulk config -->
+  <require>org.nuxeo.ecm.core.bulk.config</require>
+
+  <!-- ======================================================================================= -->
+  <!-- 1. Bulk action -->
+  <!--
+    enabled                  on/off
+    name                     action id
+    inputStream              own stream; Kafka topic nuxeo-bulk-expeditedDelete
+    defaultScroller          runs the query (see Scrollers)
+    defaultQueryLimit        max documents per run; 0 = no limit
+    bucketSize               ids per stream message
+    batchSize                documents per transaction; max bucketSize
+    batchTransactionTimeout  per-batch timeout, e.g. 5m; 0s = nuxeo.db.transactiontimeout
+    httpEnabled              false = admins only (REST, Bulk.RunAction)
+    sequentialScroll         true = one run scrolled at a time
+    sequentialProcessing     true = one thread per run, in order
+    exclusive                true = one run per repository at a time
+    validationClass          checks every launch: WHERE required, no parameters
+    sequentialCommands       deprecated: use sequentialScroll
+  -->
+  <extension target="org.nuxeo.ecm.core.bulk" point="actions">
+    <action enabled="${nuxeo.bulk.action.expeditedDelete.enabled:=true}"
+      name="expeditedDelete"
+      inputStream="bulk/expeditedDelete"
+      defaultScroller="${nuxeo.bulk.action.expeditedDelete.defaultScroller:=repository}"
+      defaultQueryLimit="${nuxeo.bulk.action.expeditedDelete.defaultQueryLimit:=0}"
+      bucketSize="${nuxeo.bulk.action.expeditedDelete.bucketSize:=100}"
+      batchSize="${nuxeo.bulk.action.expeditedDelete.batchSize:=50}"
+      batchTransactionTimeout="${nuxeo.bulk.action.expeditedDelete.batchTransactionTimeout:=0s}"
+      httpEnabled="false"
+      sequentialScroll="false"
+      sequentialProcessing="false"
+      exclusive="false"
+      validationClass="io.maretha.expediteddelete.ExpeditedDeleteValidation" />
+  </extension>
+
+  <!--
+    Scrollers: run the query as the launcher, write ids to the stream.
+    LTS 2025 NXQL scrollers:
+      repository         database (used here)
+      search             Search Service; index from nuxeo.search.client.default.scroller.index.name [repository]
+      repository_search  Search Service, "repository" index
+      elastic            OpenSearch 1 "enhanced" index; deprecated; needs the OpenSearch 1 client package
+    Search scrollers need their index; a missing one stops the shared scroller until restart.
+    Other types (generic, queryBuilder, static, empty): non-NXQL, Java only.
+    Pick one: defaultScroller="search", nuxeo.conf nuxeo.bulk.action.expeditedDelete.defaultScroller=search,
+    or per run with the REST "scroll" parameter.
+    Shared nuxeo.conf settings [default]:
+      nuxeo.core.bulk.scroller.scroll.keepAliveSeconds  [300]    cursor keep-alive
+      nuxeo.core.bulk.scroller.concurrency              [2]      scroller threads per node
+      nuxeo.core.bulk.scroller.continueOnFailure        [false]  true = skip a failed scroll
+  -->
+  <!--
+    Example: your own scroller. Use it with defaultScroller="expeditedDeleteSearch".
+      type     document = NXQL
+      name     id for defaultScroller / "scroll"
+      class    implements org.nuxeo.ecm.core.api.scroll.Scroll
+      default  true = used when none is named
+      enabled  on/off
+      option   settings for the class
+
+  <extension target="org.nuxeo.ecm.core.scroll.service" point="scroll">
+    <scroll type="document" name="expeditedDeleteSearch" class="org.nuxeo.ecm.core.search.SearchServiceScroll"
+      default="false" enabled="true">
+      <option name="searchIndex">repository</option>
+    </scroll>
+  </extension>
+  -->
+
+  <!-- ======================================================================================= -->
+  <!-- 2. Stream processor -->
+  <!--
+    name                same as the action name
+    class               topology class
+    enabled             on/off; match the action
+    start               false = idle until started
+    defaultConcurrency  threads per node
+    defaultPartitions   max threads cluster-wide; fixed at stream creation
+    defaultCodec        avro (default), avroBinary, avroJson, java, legacy
+    defaultExternal     true = streams created elsewhere
+    logConfig           ignored in LTS 2025
+  -->
+  <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
+    <streamProcessor name="expeditedDelete"
+      class="io.maretha.expediteddelete.ExpeditedDeleteAction"
+      enabled="${nuxeo.bulk.action.expeditedDelete.enabled:=true}"
+      start="true"
+      defaultConcurrency="${nuxeo.bulk.action.expeditedDelete.defaultConcurrency:=4}"
+      defaultPartitions="${nuxeo.bulk.action.expeditedDelete.defaultPartitions:=8}"
+      defaultCodec="avro"
+      defaultExternal="false">
+      <!--
+        Failed message (database down, unexpected error):
+          name               default = all steps, or one step (bulk/expeditedDelete)
+          maxRetries         retries
+          delay / maxDelay   first wait / longest wait
+          continueOnFailure  true = log error, move on; false = stop until restart
+          skipFirstFailures  recovery: skip N failures (nuxeo.stream.recovery.skipFirstFailures)
+          class              custom StreamComputationPolicy
+          batchCapacity / batchThreshold  AbstractBatchComputation only
+        Refused documents (legal hold...) are skipped by the code, not retried.
+      -->
+      <policy name="default" maxRetries="3" delay="500ms" maxDelay="10s"
+        continueOnFailure="${nuxeo.bulk.action.expeditedDelete.continueOnFailure:=true}" skipFirstFailures="0" />
+      <!--
+        Optional:
+          option       passed to getTopology(options)
+          computation  threads for one step
+          stream       one stream's partitions, codec, external
+          filter       RecordFilter on that stream
+
+      <option name="myOption">value</option>
+      <computation name="bulk/expeditedDelete" concurrency="4" />
+      <stream name="bulk/expeditedDelete" partitions="8" codec="avro" external="false">
+        <filter name="myFilter" class="com.example.MyRecordFilter">
+          <option name="myOption">value</option>
+        </filter>
+      </stream>
+      -->
+    </streamProcessor>
+  </extension>
+
+</component>

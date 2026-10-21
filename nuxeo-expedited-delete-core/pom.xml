@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.maretha.expediteddelete</groupId>
+    <artifactId>nuxeo-expedited-delete-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <artifactId>nuxeo-expedited-delete-core</artifactId>
+  <name>Nuxeo Expedited Delete Core</name>
+
+  <dependencies>
+    <!-- provided: ship with Nuxeo -->
+    <dependency>
+      <!-- BulkService, AbstractBulkComputation, BulkCommand -->
+      <groupId>org.nuxeo.ecm.core</groupId>
+      <artifactId>nuxeo-core-bulk</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- CoreSession, NuxeoException -->
+      <groupId>org.nuxeo.ecm.core</groupId>
+      <artifactId>nuxeo-core-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- NXQL parser, for the WHERE check -->
+      <groupId>org.nuxeo.ecm.core</groupId>
+      <artifactId>nuxeo-core-query</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- StreamProcessorTopology -->
+      <groupId>org.nuxeo.runtime</groupId>
+      <artifactId>nuxeo-runtime-stream</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- Topology -->
+      <groupId>org.nuxeo.lib.stream</groupId>
+      <artifactId>nuxeo-stream</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- @Operation -->
+      <groupId>org.nuxeo.ecm.automation</groupId>
+      <artifactId>nuxeo-automation-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <!-- AutomationFeature: test runtime -->
+      <groupId>org.nuxeo.ecm.automation</groupId>
+      <artifactId>nuxeo-automation-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <!-- RestServerFeature: embedded REST API -->
+      <groupId>org.nuxeo.ecm.platform</groupId>
+      <artifactId>nuxeo-rest-api-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <!-- /api/v1/search/.../bulk/{action} -->
+      <groupId>org.nuxeo.ecm.platform</groupId>
+      <artifactId>nuxeo-search-rest-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- "elastic" scroller test: OpenSearch 1 client + embedded OpenSearch -->
+    <dependency>
+      <groupId>org.nuxeo.ecm.core</groupId>
+      <artifactId>nuxeo-search-client-opensearch1</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.nuxeo.ecm.core</groupId>
+      <artifactId>nuxeo-search-client-opensearch1</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.nuxeo.runtime</groupId>
+      <artifactId>nuxeo-runtime-opensearch1</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.nuxeo.runtime</groupId>
+      <artifactId>nuxeo-runtime-opensearch1-embed</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.nuxeo.runtime</groupId>
+      <artifactId>nuxeo-runtime-opensearch1-embed</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+  <Appenders>
+    <Console name="CONSOLE" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{HH:mm:ss,SSS} %-5p [%t] %c{1}: %m%n" />
+    </Console>
+  </Appenders>
+  <Loggers>
+    <Logger name="io.maretha.expediteddelete" level="info" />
+    <Root level="warn">
+      <AppenderRef ref="CONSOLE" />
+    </Root>
+  </Loggers>
+</Configuration>

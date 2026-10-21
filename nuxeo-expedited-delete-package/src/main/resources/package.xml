@@ -1,0 +1,22 @@
+<package type="addon" name="nuxeo-expedited-delete" version="@VERSION@">
+  <title>Nuxeo Expedited Delete</title>
+  <description>
+    <p>Bulk action that permanently deletes the documents matching an NXQL query, as the system user, on its own
+      stream (bulk/expeditedDelete). Launched by administrators with the Bulk.ExpeditedDelete operation.</p>
+  </description>
+  <vendor>Maretha.io</vendor>
+  <!-- restart needed -->
+  <installer restart="true" />
+  <uninstaller restart="true" />
+  <nuxeo-validation>none</nuxeo-validation>
+  <production-state>testing</production-state>
+  <supported>false</supported>
+  <!-- installs on LTS 2025 only -->
+  <target-platform>
+    <name>lts</name>
+    <version>[2025.0,2027.0)</version>
+  </target-platform>
+  <license>Apache License, Version 2.0</license>
+  <license-url>https://www.apache.org/licenses/LICENSE-2.0</license-url>
+  <visibility>PRIVATE</visibility>
+</package>
